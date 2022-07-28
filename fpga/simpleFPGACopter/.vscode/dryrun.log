@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/tcmichals/sata-projects/projects/home/copter/fpga/simpleFPGACopter'
+iverilog -o testbench testbench.v verilog-wishbone/rtl/axis_wb_master.v 
+vvp testbench
+make: Leaving directory '/home/tcmichals/sata-projects/projects/home/copter/fpga/simpleFPGACopter'
+ 
