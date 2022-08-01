@@ -1,7 +1,7 @@
 // Russell Merrick - http://www.nandland.com
 //
 // FIFO testbench.
-
+/*
 module FIFO_TB ();
 
   localparam DEPTH = 4;
@@ -147,3 +147,4 @@ module FIFO_TB ();
   end
 
 endmodule
+*/
