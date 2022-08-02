@@ -34,9 +34,8 @@ wire [7:0] rx_spi_byte;
 wire i_axis_tready;
 
 assign  rx_spi_byte_ready = ~rt_fifo_empty & o_axis_tready;
-assign o_axis_tready = rtx_fifo_empty;
-assign o_axis_tlast = rtx_fifo_empty;
- 
+assign o_axis_tlast = rt_fifo_empty;
+assign o_axis_tvalid = rx_spi_byte_ready;
 
 FIFO spi_rx (.i_Rst_L(i_reset),
             .i_Clk(i_clk),
