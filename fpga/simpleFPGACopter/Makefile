@@ -25,8 +25,13 @@ toplevel: toplevel.v toplevelbus.v oneshot_wb.v pwmdecoder_wb.v led_wb.v tb_topl
 	iverilog -g2012 -o toplevel toplevel.v toplevelbus.v oneshot_wb.v pwmdecoder_wb.v wishbone_mux.v verilog-wishbone/rtl/axis_wb_master.v led_wb.v  spi-slave/Verilog/source/SPI_Slave.v spi-master/Verilog/source/SPI_Master.v  memory/Verilog/source/RAM_1Port.v memory/Verilog/source/RAM_2Port.v memory/Verilog/source/FIFO.v
 	vvp tb_toplevel
 
+tb_axis_spi: tb_axis_spi.v spi-slave/Verilog/source/SPI_Slave.v axis_spi.v
+	iverilog -g2012 -o tb_axis_spi tb_axis_spi.v spi-slave/Verilog/source/SPI_Slave.v axis_spi.v memory/Verilog/source/FIFO_N.v memory/Verilog/source/RAM_2Port.v
+	vvp tb_axis_spi
+
+
 clean:
-	rm -rf testbench.vcd testbench tb_toplevelbus tb_toplevelbus.vcd
+	rm -rf testbench.vcd testbench tb_toplevelbus tb_toplevelbus.vcd tb_axis_spi *.vcd
 		 
 		 
 		
