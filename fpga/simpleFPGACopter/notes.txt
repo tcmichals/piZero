@@ -1,0 +1,2 @@
+# printf '\x01\x82\xF3' | spi-pipe -d /dev/spidev0.0 | hexdump -C
+
