@@ -24,21 +24,39 @@ module axis_spi
 );
 
 wire rx_ready_spi;
-
-
-
-
 wire axis_tready;
+wire tx_write_spi;
+reg tx_ready;
+
+initial begin
+    tx_ready = 1'b1;
+end
 
 assign m_axis_tlast = 1'b1;;
 assign m_axis_tuser = 1'b1;
 assign m_axis_tkeep = 1'b1;
+assign tx_write_spi = (s_axis_tvalid & tx_ready)?1'b1:1'b0;
 
+assign m_axis_tvalid = rx_ready_spi & m_axis_tready;
+assign s_axis_tready = tx_ready;
 
-assign m_axis_tvalid = rx_byte_spi & m_axis_tready;
-assign s_axis_tready = rx_ready_spi & 
+always @(posedge axis_aclk or negedge axis_aresetn) begin
+    if (!axis_aresetn) begin
+         tx_ready = 1'b1;
+    end
+    else
+    begin
+        if (rx_ready_spi & ~tx_ready) begin
+            tx_ready <= 1'b1;
+        end
+        else if (s_axis_tvalid && tx_ready) begin
+            tx_ready <= 1'b0;
+        end
 
-
+        
+    end
+   
+end
             
 
 SPI_Slave spi(  .i_Rst_L(axis_aresetn),

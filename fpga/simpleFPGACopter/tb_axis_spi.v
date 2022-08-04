@@ -22,12 +22,12 @@ reg  s_axis_tready = 1'b1;
 wire s_axis_tlast;
 wire  s_axis_tuser;
 
-reg [7:0] m_axis_tdata;
-reg  m_axis_tkeep;
-reg  m_axis_tvalid;
+reg [7:0] m_axis_tdata = 8'h0;
+reg  m_axis_tkeep= 1'b0;
+reg  m_axis_tvalid= 1'b0;;
 wire m_axis_tready;
-reg  m_axis_tlast;
-reg  m_axis_tuser;
+reg  m_axis_tlastp= 1'b0;;
+reg  m_axis_tuserp= 1'b0;;
 
 
   // Clock Generators:
@@ -115,6 +115,18 @@ task send_spi( input [7:0] data);
         spi_mosi <= 1'b0;
 endtask
 
+task tx_axis( input [7:0] data);
+    wait(m_axis_tready);
+    @(posedge clk);
+    m_axis_tdata <= data;
+    m_axis_tvalid <= 1'b1;
+     @(posedge clk);
+    m_axis_tvalid <= 1'b0;
+
+endtask
+
+
+
 
   initial begin
     $dumpfile("tb_axis_spi.vcd");
@@ -122,7 +134,9 @@ endtask
     #2 reset <= 1'b0;
     #10 reset <= 1'b1;
 
+    #40 tx_axis(8'h33);
     #40 send_spi(8'hA5);
+    #40 tx_axis(8'h44);
     #40 send_spi(8'hAA);
     #40 $finish;	
   	 $display("Done");
