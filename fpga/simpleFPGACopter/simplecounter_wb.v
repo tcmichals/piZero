@@ -1,4 +1,4 @@
-simplecounter_wb#
+module simplecounter_wb #
 (
     parameter DATA_WIDTH = 32,                    // width of data bus in bits (8, 16, 32, or 64)
     parameter ADDR_WIDTH = 32,                    // width of address bus in bits
@@ -31,7 +31,6 @@ reg                    lcl_wb_rty_o;     // RTY_O retry output
 initial begin
 
     counter = 0;
-    lcl_wb_dat_o = 0;
     lcl_wb_ack_o = 0;
     lcl_wb_err_o = 0;
     lcl_wb_rty_o = 0;
@@ -53,9 +52,9 @@ always @(posedge i_clk)
 
 always @(posedge i_clk) begin
     counter <= counter + 1'b1;
+ end
 
 assign wb_dat_o = counter;
-assign wb_dat_o = lcl_wb_dat_o;
 assign wb_ack_o = lcl_wb_ack_o;
 assign wb_err_o = lcl_wb_err_o;
 assign wb_rty_o = lcl_wb_rty_o;
