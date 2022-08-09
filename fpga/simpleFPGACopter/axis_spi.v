@@ -1,7 +1,7 @@
 module axis_spi
 (
     input wire axis_aclk,
-    input wire axis_aresetn,
+    input wire axis_areset,
 
     input wire i_spi_clk,
     output wire o_spi_miso,
@@ -40,8 +40,8 @@ assign tx_write_spi = (s_axis_tvalid & tx_ready)?1'b1:1'b0;
 assign m_axis_tvalid = rx_ready_spi & m_axis_tready;
 assign s_axis_tready = tx_ready;
 
-always @(posedge axis_aclk or negedge axis_aresetn) begin
-    if (!axis_aresetn) begin
+always @(posedge axis_aclk or negedge axis_areset) begin
+    if (!axis_areset) begin
          tx_ready = 1'b1;
     end
     else
@@ -59,7 +59,7 @@ always @(posedge axis_aclk or negedge axis_aresetn) begin
 end
             
 
-SPI_Slave spi(  .i_Rst_L(axis_aresetn),
+SPI_Slave spi(  .i_Rst_L(axis_areset),
                 .i_Clk(axis_aclk),
                 .o_RX_DV(rx_ready_spi),
                 .o_RX_Byte(m_axis_tdata),

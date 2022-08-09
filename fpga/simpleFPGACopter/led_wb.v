@@ -48,7 +48,7 @@ assign o_led_blue = led[4];
 assign o_led_red = led[5];
 
 always @(posedge clk) begin
-    if (rst) begin
+    if (~rst) begin
         led <= 0;
     end else begin
             if ((wb_we_i & wb_cyc_i & wb_stb_i)) begin

@@ -34,7 +34,7 @@ module axis_wrapper
 
 axis_wb_master #( .IMPLICIT_FRAMING(1) )
                  wb_master (.clk(i_clk),
-                            .rst(i_reset),
+                            .rst(~i_reset),
 
                             .input_axis_tdata(i_axis_tdata),
                             .input_axis_tkeep(i_axis_tkeep),

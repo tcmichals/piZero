@@ -44,15 +44,22 @@ always @* begin
     lcl_wb_ack_o <= wb_stb_i;  
 end
 
-always @(posedge i_clk)
+always @(posedge i_clk or negedge i_rst) begin
+    if (!i_rst)
+        counter <= 0;
+
     lcl_ack <= wb_stb_i;        
+end
 
 always @(posedge i_clk)
     lcl_wb_ack_o <= lcl_ack;     
 
 always @(posedge i_clk) begin
-    counter <= counter + 1'b1;
- end
+    if (wb_we_i & wb_stb_i)
+        counter <= wb_dat_i;
+    else
+        counter <= counter + 1'b1;
+end
 
 assign wb_dat_o = counter;
 assign wb_ack_o = lcl_wb_ack_o;

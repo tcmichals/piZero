@@ -134,7 +134,7 @@ endtask
     #2 reset <= 1'b0;
     #10 reset <= 1'b1;
 
-    #40 tx_axis(8'h33);
+    #40 tx_axis(8'h88);
     #40 send_spi(8'hA5);
     #40 tx_axis(8'h44);
     #40 send_spi(8'hAA);
