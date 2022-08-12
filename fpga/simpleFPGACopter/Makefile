@@ -38,7 +38,7 @@ tb_spiwishbone: tb_spiwishbone.v  spiwishbone.v
 	vvp tb_spiwishbone
 
 clean:
-	rm -rf testbench.vcd testbench tb_toplevelbus tb_toplevelbus.vcd tb_axis_spi *.vcd tb_axiswishbone 
+	rm -rf testbench.vcd testbench tb_toplevelbus tb_toplevelbus.vcd tb_axis_spi *.vcd tb_axiswishbone tb_spiwishbone
 		 
 		 
 		
