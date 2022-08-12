@@ -1,4 +1,4 @@
-module tb_spiwishbone;
+module tb_spiwishbone();
 
 reg reset = 1'b1;
 
@@ -122,8 +122,6 @@ endtask
 
 
 initial begin
-    $display("sending");
-
     $dumpfile("tb_spiwishbone.vcd");
 	$dumpvars(0,tb_spiwishbone);
 
