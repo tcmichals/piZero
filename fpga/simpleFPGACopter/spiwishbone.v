@@ -31,12 +31,15 @@ wire [7:0]  c_axis_tdata;
 wire        c_axis_tvalid;
 
 
+
 //server
 wire [7:0]  s_axis_tdata;
 wire        s_axis_tvalid;
 wire        s_axis_tready;
 
 wire fifo_empty;
+wire fifo_ready;
+wire [7:0] fifo_rd_byte;
 
 initial begin
     tx_ready = 1'b1;
@@ -67,8 +70,8 @@ SPI_Slave spi(  .i_Rst_L(i_resetn),
                 .i_Clk(i_clk),
                 .o_RX_DV(rx_ready_spi),
                 .o_RX_Byte(s_axis_tdata),
-                .i_TX_DV(tx_write_spi),
-                .i_TX_Byte(c_axis_tdata),
+                .i_TX_DV(fifo_ready & ~fifo_empty),
+                .i_TX_Byte(),
                 .i_SPI_Clk(i_spi_clk),
                 .o_SPI_MISO(o_spi_miso),
                 .i_SPI_MOSI(i_spi_mosi),
@@ -86,8 +89,8 @@ FIFO axis_fifo( .i_Rst_L(i_resetn),
                 .o_AF_Flag(),
                 .o_Full(),
                 .i_Rd_En(tx_ready & ~fifo_empty),
-                .o_Rd_DV(),
-                .o_Rd_Data(c_axis_tdata),
+                .o_Rd_DV(fifo_ready),
+                .o_Rd_Data(fifo_rd_byte),
                 .i_AE_Level(),
                 .o_AE_Flag(),
                 .o_Empty(fifo_empty)
@@ -109,7 +112,7 @@ axis_wb_master #( .IMPLICIT_FRAMING(1) )
                             .output_axis_tdata(c_axis_tdata),
                             .output_axis_tkeep(),
                             .output_axis_tvalid(c_axis_tvalid),
-                            .output_axis_tready(o_axis_tready),
+                            .output_axis_tready(1'b1),
                             .output_axis_tlast(),
                             .output_axis_tuser(),
 

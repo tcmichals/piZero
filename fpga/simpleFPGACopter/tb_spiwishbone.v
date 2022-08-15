@@ -10,13 +10,13 @@ reg spi_mosi = 1'b0;
 wire spi_miso;
 
 wire [31:0] wb_adr_o;   // ADR_O() address
-reg [31:0]  wb_dat_i;   // DAT_I() data in
-wire [31:0] wb_dat_o;   // DAT_O() data out
+wire [31:0]  wb_dat_i;   // DAT_I() data in
+reg [31:0] wb_dat_o = 4'hFFEEDDCC;   // DAT_O() data out
 wire        wb_we_o;    // WE_O write enable output
 wire [3:0]  wb_sel_o;   // SEL_O() select output
 wire        wb_stb_o;   // STB_O strobe output
-reg         wb_ack_i;   // ACK_I acknowledge input
-wire        wb_err_i;   // ERR_I error input
+reg         wb_ack_i = 1'b0;   // ACK_I acknowledge input
+reg        wb_err_i = 1'b0;   // ERR_I error input
 wire       m_wb_cyc_o;   // CYC_O cycle output
 wire o_busy;
 
@@ -35,8 +35,8 @@ spiwishbone wishbone(
         .i_spi_mosi(spi_mosi),
         .i_spi_cs(spi_ss),
         .m_wb_adr_o(wb_adr_o),
-        .m_wb_dat_i(wb_dat_i),
-        .m_wb_dat_o(wb_dat_o),
+        .m_wb_dat_i(wb_dat_o),
+        .m_wb_dat_o(wb_dat_i),
         .m_wb_we_o(wb_we_o),
         .m_wb_sel_o(wb_sel_o),
         .m_wb_stb_o(wb_stb_o),
@@ -48,7 +48,7 @@ spiwishbone wishbone(
 
 
 reg spi_bits = 8'h0;
-reg [7:0] spi_miso_byte;
+reg [7:0] spi_miso_byte = 0;
 
 always @(posedge spi_clk) begin
 
@@ -64,6 +64,15 @@ always @(posedge spi_clk) begin
  
 end
 
+always @(posedge clk) begin
+
+  if (wb_stb_o & ~wb_ack_i)
+    wb_ack_i <= 1'b1;
+
+  if (wb_ack_i)
+    wb_ack_i <= 1'b0;
+
+end
 
 task send_spi( input [7:0] data);
    reg spi_out_bit;
