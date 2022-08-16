@@ -1,2 +1,3 @@
 # printf '\x01\x82\xF3' | spi-pipe -d /dev/spidev0.0 | hexdump -C
 
+https://forum.digikey.com/t/fifo-buffer-module-with-watermarks-verilog-and-vhdl/13182

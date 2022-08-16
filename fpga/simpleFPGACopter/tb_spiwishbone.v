@@ -11,7 +11,7 @@ wire spi_miso;
 
 wire [31:0] wb_adr_o;   // ADR_O() address
 wire [31:0]  wb_dat_i;   // DAT_I() data in
-reg [31:0] wb_dat_o = 4'hFFEEDDCC;   // DAT_O() data out
+reg [31:0] wb_dat_o = 32'hFFEEDDCC;   // DAT_O() data out
 wire        wb_we_o;    // WE_O write enable output
 wire [3:0]  wb_sel_o;   // SEL_O() select output
 wire        wb_stb_o;   // STB_O strobe output

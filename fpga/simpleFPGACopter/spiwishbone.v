@@ -3,10 +3,12 @@ module spiwishbone
 
 input wire          i_clk,
 input wire          i_resetn,  //active low
+
 input wire          i_spi_clk,
 output wire         o_spi_miso,
 input wire          i_spi_mosi,
 input wire          i_spi_cs,
+
 output wire [31:0]  m_wb_adr_o,   // ADR_O() address
 input wire [31:0]   m_wb_dat_i,   // DAT_I() data in
 output wire [31:0]  m_wb_dat_o,   // DAT_O() data out
@@ -17,6 +19,7 @@ input wire          m_wb_ack_i,   // ACK_I acknowledge input
 input wire          m_wb_err_i,   // ERR_I error input
 output wire         m_wb_cyc_o,   // CYC_O cycle output
 output wire         o_busy
+
 );
 
 
@@ -24,6 +27,8 @@ wire rx_ready_spi;
 wire axis_tready;
 wire tx_write_spi;
 reg tx_ready;
+reg readFifo;
+wire [7:0] fifo_rd_byte;
 
 
 //client 
@@ -37,41 +42,41 @@ wire [7:0]  s_axis_tdata;
 wire        s_axis_tvalid;
 wire        s_axis_tready;
 
-wire fifo_empty;
-wire fifo_ready;
-wire [7:0] fifo_rd_byte;
 
 initial begin
     tx_ready = 1'b1;
+
 end
 
-
 assign tx_write_spi = (c_axis_tvalid & tx_ready)?1'b1:1'b0;
-
 assign s_axis_tvalid = rx_ready_spi & s_axis_tready;
 
 always @(posedge i_clk or negedge i_resetn) begin
     if (!i_resetn) begin
-         tx_ready = 1'b1;
+         tx_ready <= 1'b1;
+         readFifo <= 1'b0;
     end
-    else
-    begin
-        if (rx_ready_spi & ~tx_ready) begin
-            tx_ready <= 1'b1;
+    else begin
+        if ( tx_ready &  ~fifo_empty & ~readFifo) begin
+            readFifo <= 1'b1;
         end
-        else if (tx_ready & ~fifo_empty) begin
-            tx_ready <= 1'b0;
-
+        else if (readFifo) begin
+                tx_ready <= 1'b0;
+                readFifo <= 1'b0;
+        end
+        if (~tx_ready & rx_ready_spi) begin
+            tx_ready <= 1'b1;
         end
     end  
 end
+
 
 SPI_Slave spi(  .i_Rst_L(i_resetn),
                 .i_Clk(i_clk),
                 .o_RX_DV(rx_ready_spi),
                 .o_RX_Byte(s_axis_tdata),
-                .i_TX_DV(fifo_ready & ~fifo_empty),
-                .i_TX_Byte(),
+                .i_TX_DV( readFifo),
+                .i_TX_Byte(fifo_rd_byte),
                 .i_SPI_Clk(i_spi_clk),
                 .o_SPI_MISO(o_spi_miso),
                 .i_SPI_MOSI(i_spi_mosi),
@@ -81,23 +86,22 @@ SPI_Slave spi(  .i_Rst_L(i_resetn),
 
 
 
-FIFO axis_fifo( .i_Rst_L(i_resetn),
-                .i_Clk(i_clk),
-                .i_Wr_DV(c_axis_tvalid),
-                .i_Wr_Data(c_axis_tdata),
-                .i_AF_Level(),
-                .o_AF_Flag(),
-                .o_Full(),
-                .i_Rd_En(tx_ready & ~fifo_empty),
-                .o_Rd_DV(fifo_ready),
-                .o_Rd_Data(fifo_rd_byte),
-                .i_AE_Level(),
-                .o_AE_Flag(),
-                .o_Empty(fifo_empty)
-);
+FIFO_v  #(.DATA_W(8))
+          axis_fifo  ( .data_out(fifo_rd_byte),
+                        .data_count(),
+                        .empty(fifo_empty),
+                        .full(),
+                        .almst_empty(),
+                        .almst_full(),
+                        .err(),
+                        .data_in(c_axis_tdata),
+                        .wr_en(c_axis_tvalid),
+                        .rd_en(readFifo),
+                        .n_reset(i_resetn),
+                        .clk(i_clk));
 
-
-
+            
+   
 axis_wb_master #( .IMPLICIT_FRAMING(1) )
                  wb_master (.clk(i_clk),
                             .rst(~i_resetn),
