@@ -1,3 +1,6 @@
+
+`timescale 1ns/ 100 ps
+
 module spiwishbone
 (
 
@@ -28,6 +31,7 @@ wire axis_tready;
 wire tx_write_spi;
 reg tx_ready;
 reg readFifo;
+reg spiTxByte;
 wire [7:0] fifo_rd_byte;
 
 
@@ -45,6 +49,8 @@ wire        s_axis_tready;
 
 initial begin
     tx_ready = 1'b1;
+    readFifo = 1'b0;
+    spiTxByte = 1'b0;
 
 end
 
@@ -55,14 +61,19 @@ always @(posedge i_clk or negedge i_resetn) begin
     if (!i_resetn) begin
          tx_ready <= 1'b1;
          readFifo <= 1'b0;
+         spiTxByte <= 1'b0;
     end
     else begin
-        if ( tx_ready &  ~fifo_empty & ~readFifo) begin
+        if ( tx_ready &  ~fifo_empty & ~readFifo & ~spiTxByte) begin
             readFifo <= 1'b1;
         end
         else if (readFifo) begin
                 tx_ready <= 1'b0;
                 readFifo <= 1'b0;
+                spiTxByte <= 1'b1;
+        end
+        else if (spiTxByte) begin
+            spiTxByte <= 1'b0;
         end
         if (~tx_ready & rx_ready_spi) begin
             tx_ready <= 1'b1;
@@ -75,7 +86,7 @@ SPI_Slave spi(  .i_Rst_L(i_resetn),
                 .i_Clk(i_clk),
                 .o_RX_DV(rx_ready_spi),
                 .o_RX_Byte(s_axis_tdata),
-                .i_TX_DV( readFifo),
+                .i_TX_DV( spiTxByte),
                 .i_TX_Byte(fifo_rd_byte),
                 .i_SPI_Clk(i_spi_clk),
                 .o_SPI_MISO(o_spi_miso),

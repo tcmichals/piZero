@@ -1,3 +1,5 @@
+`timescale 1ns/ 100 ps
+
 module tb_spiwishbone();
 
 reg reset = 1'b1;
