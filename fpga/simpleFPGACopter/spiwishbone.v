@@ -21,7 +21,9 @@ output wire         m_wb_stb_o,   // STB_O strobe output
 input wire          m_wb_ack_i,   // ACK_I acknowledge input
 input wire          m_wb_err_i,   // ERR_I error input
 output wire         m_wb_cyc_o,   // CYC_O cycle output
-output wire         o_busy
+output wire         o_busy,
+
+output wire [2:0] debug
 
 );
 
@@ -64,7 +66,7 @@ always @(posedge i_clk or negedge i_resetn) begin
          spiTxByte <= 1'b0;
     end
     else begin
-        if ( tx_ready &  ~fifo_empty & ~readFifo & ~spiTxByte) begin
+        if ( ~c_axis_tvalid & tx_ready &  ~fifo_empty & ~readFifo & ~spiTxByte) begin
             readFifo <= 1'b1;
         end
         else if (readFifo) begin
@@ -142,5 +144,5 @@ axis_wb_master #( .IMPLICIT_FRAMING(1) )
                             .wb_cyc_o(m_wb_cyc_o),
                           .busy(o_busy));
 
-
+assign debug = wb_master.state_reg;
 endmodule
