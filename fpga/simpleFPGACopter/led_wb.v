@@ -30,32 +30,47 @@ module led_wb #
     output wire o_led_0,
     output wire o_led_1,
     output wire o_led_2,
+    output wire o_led_3,
     output wire o_led_green,
     output wire o_led_blue,
     output wire o_led_red );
 
-reg [31:0] led = 0;
+reg [31:0] led;
+reg ack;
 
 assign wb_rty_o = 0;
 assign wb_err_o = 0;
-assign wb_ack_o = wb_cyc_i;
+
 assign wb_dat_o = led;
 assign o_led_0 = led[0];
 assign o_led_1 = led[1];
 assign o_led_2 = led[2];
-assign o_led_green = led[3];
-assign o_led_blue = led[4];
-assign o_led_red = led[5];
+assign o_led_3 = led[3];
+assign o_led_green = led[4];
+assign o_led_blue = led[5];
+assign o_led_red = led[6];
+
+initial begin
+    led = 32'h0;
+    ack= 1'b0;
+
+end
 
 always @(posedge clk) begin
     if (~rst) begin
         led <= 0;
+        ack <= 1'b0;
     end else begin
-            if ((wb_we_i & wb_cyc_i & wb_stb_i)) begin
-                led <= wb_dat_i;
-            end
+        if ((wb_we_i & wb_cyc_i & wb_stb_i)) begin
+            led <= wb_dat_i;
+            ack <= 1'b1;
+        end
+        if (ack) begin
+            ack <= 1'b0;
+        end
     end     
-
 end
+
+assign  wb_ack_o = ack;
 
 endmodule

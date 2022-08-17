@@ -68,8 +68,11 @@ end
 
 always @(posedge clk) begin
 
-  if (wb_stb_o & ~wb_ack_i)
+  if (wb_stb_o & ~wb_ack_i) begin
+    if (wb_we_o)
+      wb_dat_o <= wb_dat_i;
     wb_ack_i <= 1'b1;
+  end
 
   if (wb_ack_i)
     wb_ack_i <= 1'b0;
@@ -175,7 +178,65 @@ initial begin
     #1    send_spi(8'h66); 
     #1    send_spi(8'h77); 
     #1    send_spi(8'h88); 
-    #1    send_spi(8'h99); 
+    #1    send_spi(8'h00); 
+
+
+        //Read
+    #40    send_spi(8'hA1);  
+    //Address 
+    #1    send_spi(8'h55);
+    #1  send_spi(8'h66); 
+
+    #1   send_spi(8'h77); 
+    #1  send_spi(8'h88); 
+    //Length
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h4); 
+    //data
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h00); 
+
+
+        //Read
+    #40    send_spi(8'hA1);  
+    //Address 
+    #1    send_spi(8'h11);
+    #1  send_spi(8'h99); 
+
+    #1   send_spi(8'hAA); 
+    #1  send_spi(8'hBB); 
+    //Length
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h4); 
+    //data
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h00); 
+
+
+        //Write
+    #40    send_spi(8'hA2);  
+    //Address 
+    #1    send_spi(8'h11);
+    #1  send_spi(8'h22); 
+
+    #1   send_spi(8'h33); 
+    #1  send_spi(8'h44); 
+    //Length
+    #1    send_spi(8'h00); 
+    #1    send_spi(8'h4); 
+    //data
+    #1    send_spi(8'h11); 
+    #1    send_spi(8'h22); 
+    #1    send_spi(8'h33); 
+    #1    send_spi(8'h44); 
     #1    send_spi(8'h00); 
 
     #40 $finish;	
