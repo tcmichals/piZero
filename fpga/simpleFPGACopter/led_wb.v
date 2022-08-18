@@ -1,5 +1,6 @@
 
 
+
 `timescale 1ns / 1ps
 
 /*
@@ -41,13 +42,13 @@ reg ack;
 assign wb_rty_o = 0;
 assign wb_err_o = 0;
 
-assign wb_dat_o = led;
+assign wb_dat_o = led; 
 assign o_led_0 = led[0];
 assign o_led_1 = led[1];
 assign o_led_2 = led[2];
 assign o_led_3 = led[3];
 assign o_led_green = led[4];
-assign o_led_blue = led[5];
+assign o_led_blue = led[5]; 
 assign o_led_red = led[6];
 
 initial begin
@@ -61,8 +62,9 @@ always @(posedge clk) begin
         led <= 0;
         ack <= 1'b0;
     end else begin
-        if ((wb_we_i & wb_cyc_i & wb_stb_i)) begin
-            led <= wb_dat_i;
+        if ((~ack & wb_cyc_i & wb_stb_i)) begin
+            if (wb_we_i)
+                led <= wb_dat_i;
             ack <= 1'b1;
         end
         if (ack) begin
@@ -74,3 +76,4 @@ end
 assign  wb_ack_o = ack;
 
 endmodule
+
