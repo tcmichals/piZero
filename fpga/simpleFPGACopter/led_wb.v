@@ -63,8 +63,18 @@ always @(posedge clk) begin
         ack <= 1'b0;
     end else begin
         if ((~ack & wb_cyc_i & wb_stb_i)) begin
-            if (wb_we_i)
-                led <= wb_dat_i;
+            if (wb_we_i) begin
+                case(wb_adr_i[3:0])
+                // toggle 
+                8'h4 :  led <= led ^ wb_dat_i;
+                // clear
+                8'h8 :  led <= led & ~wb_dat_i;
+
+                default:
+                // set
+                    led <= wb_dat_i;
+                endcase
+            end
             ack <= 1'b1;
         end
         if (ack) begin
