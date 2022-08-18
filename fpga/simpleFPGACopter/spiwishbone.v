@@ -21,10 +21,7 @@ output wire         m_wb_stb_o,   // STB_O strobe output
 input wire          m_wb_ack_i,   // ACK_I acknowledge input
 input wire          m_wb_err_i,   // ERR_I error input
 output wire         m_wb_cyc_o,   // CYC_O cycle output
-output wire         o_busy,
-
-output wire [2:0] debug
-
+output wire         o_busy
 );
 
 
@@ -144,5 +141,4 @@ axis_wb_master #( .IMPLICIT_FRAMING(1) )
                             .wb_cyc_o(m_wb_cyc_o),
                           .busy(o_busy));
 
-assign debug = wb_master.state_reg;
 endmodule
