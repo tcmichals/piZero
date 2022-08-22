@@ -35,8 +35,8 @@ output wire [3:0] spi_counter
 
 wire rx_ready_spi;
 wire axis_tready;
-wire tx_write_spi;
-reg tx_ready;
+
+
 reg readFifo;
 wire [7:0] fifo_rd_byte;
 reg [3:0] spi_counter_reg;
@@ -45,28 +45,20 @@ reg [3:0] spi_counter_reg;
 wire [7:0]  c_axis_tdata;
 wire        c_axis_tvalid;
 wire c_axis_tready;
-
-
-
 //server
 wire [7:0]  s_axis_tdata;
 wire        s_axis_tvalid;
 wire        s_axis_tready;
 
-
 initial begin
-    tx_ready = 1'b1;
     readFifo = 1'b0;
     spi_counter_reg = 4'h0; 
-
 end
 
-assign tx_write_spi = (c_axis_tvalid & tx_ready)?1'b1:1'b0;
 assign s_axis_tvalid = rx_ready_spi & s_axis_tready;
 
 always @(posedge i_clk or negedge i_resetn) begin
     if (!i_resetn) begin
-         tx_ready <= 1'b1;
          readFifo <= 1'b0;
     end
     else begin
@@ -76,33 +68,15 @@ always @(posedge i_clk or negedge i_resetn) begin
         if (i_spi_cs) begin
             spi_counter_reg <= 4'h0;
         end
-        if ( ~c_axis_tvalid & tx_ready &  ~fifo_empty & ~readFifo ) begin
+        if ( /*~c_axis_tvalid & */rx_ready_spi & ~fifo_empty & ~readFifo ) begin
             readFifo <= 1'b1;
         end
         else if (readFifo) begin
-                tx_ready <= 1'b0;
                 readFifo <= 1'b0;
+        end
 
-        end
-        if (~tx_ready & rx_ready_spi) begin
-            tx_ready <= 1'b1;
-        end
     end  
 end
-
-/* Old
-SPI_Slave spi(  .i_Rst_L(i_resetn),
-                .i_Clk(i_clk),
-                .o_RX_DV(rx_ready_spi),
-                .o_RX_Byte(s_axis_tdata),
-                .i_TX_DV( spiTxByte),
-                .i_TX_Byte(fifo_rd_byte),
-                .i_SPI_Clk(i_spi_clk),
-                .o_SPI_MISO(o_spi_miso),
-                .i_SPI_MOSI(i_spi_mosi),
-                .i_SPI_CS_n(i_spi_cs)
- );
-*/
 
 spi_slave spi(  .clk(i_clk),
                 .rst(~i_resetn),
@@ -113,8 +87,6 @@ spi_slave spi(  .clk(i_clk),
                 .done(rx_ready_spi),
                 .din(fifo_rd_byte),
                 .dout(s_axis_tdata));
-
-
 
 FIFO_v  #(.DATA_W(8))
           axis_fifo  ( .data_out(fifo_rd_byte),
@@ -129,27 +101,23 @@ FIFO_v  #(.DATA_W(8))
                         .rd_en(readFifo),
                         .n_reset(i_resetn),
                         .clk(i_clk));
-
-            
+           
    
 axis_wb_master #( .IMPLICIT_FRAMING(1) )
                  wb_master (.clk(i_clk),
                             .rst(~i_resetn),
-
                             .input_axis_tdata(s_axis_tdata),
                             .input_axis_tkeep(s_axis_tkeep),
                             .input_axis_tvalid(s_axis_tvalid),
                             .input_axis_tready(s_axis_tready),
                             .input_axis_tlast(),
                             .input_axis_tuser(),
-
                             .output_axis_tdata(c_axis_tdata),
                             .output_axis_tkeep(),
                             .output_axis_tvalid(c_axis_tvalid),
                             .output_axis_tready(~c_axis_tready),
                             .output_axis_tlast(),
                             .output_axis_tuser(),
-
                             .wb_adr_o(m_wb_adr_o),
                             .wb_dat_i(m_wb_dat_i),
                             .wb_dat_o(m_wb_dat_o),
