@@ -33,8 +33,8 @@ tb_axiswishbone: tb_axiswishbone.v simplecounter_wb.v
 	iverilog -g2012 -o tb_axiswishbone tb_axiswishbone.v verilog-wishbone/rtl/axis_wb_master.v simplecounter_wb.v  memory/Verilog/source/FIFO.v memory/Verilog/source/RAM_2Port.v
 	vvp tb_axiswishbone
 
-tb_spiwishbone: tb_spiwishbone.v  spiwishbone.v
-	iverilog -g2012 -o tb_spiwishbone tb_spiwishbone.v spiwishbone.v verilog-wishbone/rtl/axis_wb_master.v spi-slave/Verilog/source/SPI_Slave.v FIFO_v.v
+tb_spiwishbone: tb_spiwishbone.v  spiwishbone.v spi_slave.v
+	iverilog -g2012 -o tb_spiwishbone tb_spiwishbone.v spiwishbone.v verilog-wishbone/rtl/axis_wb_master.v spi_slave.v FIFO_v.v
 	vvp tb_spiwishbone
 
 clean:
