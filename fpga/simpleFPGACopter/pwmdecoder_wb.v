@@ -1,5 +1,8 @@
+`default_nettype none
+`timescale 1 ns / 1 ns
 
 module pwmdecoder_wb #
+    (parameter clockFreq = 1000000000)   
 (
     parameter DATA_WIDTH = 32,                    // width of data bus in bits (8, 16, 32, or 64)
     parameter ADDR_WIDTH = 32,                    // width of address bus in bits
@@ -20,8 +23,15 @@ module pwmdecoder_wb #
     output wire                    wb_ack_o,     // ACK_O acknowledge output
     output wire                    wb_err_o,     // ERR_O error output
     output wire                    wb_rty_o,     // RTY_O retry output
-    input  wire                    wb_cyc_i     // CYC_I cycle input
+    input  wire                    wb_cyc_i,     // CYC_I cycle input
 
+    /* pwm input signals */
+    input wire i_pwm_0,
+    input wire i_pwm_1,
+    input wire i_pwm_2,
+    input wire i_pwm_3,
+    input wire i_pwm_4,
+    input wire i_pwm_5
 );
 
 reg [DATA_WIDTH-1:0]   lcl_wb_dat_o;     // DAT_O() data out
@@ -76,40 +86,40 @@ always @(posedge i_clk) begin
 end
    
 
-pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_0  (.i_clk(i_clk),
+pwmdecoder #(.clockFreq(clockFreq)) pwmDecoder_0  (.i_clk(i_clk),
                         .i_pwm(i_pwm_1),
                         .i_resetn(i_rstn),
                         .o_pwm_ready(),
                         .o_pwm_value(pwm_value_0));   
 
-pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_1 (.i_clk(i_clk),
+pwmdecoder #(.clockFreq(clockFreq)) pwmDecoder_1 (.i_clk(i_clk),
                         .i_pwm(i_pwm_2),
                         .i_resetn(i_rstn),
                         .o_pwm_ready(),
                         .o_pwm_value(pwm_value_1));   
 
-pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_2 
+pwmdecoder #(.clockFreq(clockFreq)) pwmDecoder_2 
                         (.i_clk(i_clk),
                         .i_pwm(i_pwm_2),
                         .i_resetn(i_rstn),
                         .o_pwm_ready(),
                         .o_pwm_value(pwm_value_2));   
 
-pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_3 
+pwmdecoder #(.clockFreq(clockFreq)) pwmDecoder_3 
                         (.i_clk(i_clk),
                         .i_pwm(i_pwm_3),
                         .i_resetn(i_rstn),
                         .o_pwm_ready(),
                         .o_pwm_value(pwm_value_3));   
 
-pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_4 
+pwmdecoder #(.clockFreq(clockFreq)) pwmDecoder_4 
                         (.i_clk(i_clk),
                         .i_pwm(i_pwm_4),
                         .i_resetn(i_rstn),
                         .o_pwm_ready(),
                         .o_pwm_value(pwm_value_4));   
 
-pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_5
+pwmdecoder #(.clockFreq(clockFreq)) pwmDecoder_5
                         (.i_clk(i_clk),
                         .i_pwm(i_pwm_1),
                         .i_resetn(i_rstn),
