@@ -21,26 +21,14 @@ output wire         m_wb_stb_o,   // STB_O strobe output
 input wire          m_wb_ack_i,   // ACK_I acknowledge input
 input wire          m_wb_err_i,   // ERR_I error input
 output wire         m_wb_cyc_o,   // CYC_O cycle output
-output wire         o_busy,
-
-output wire [7:0] axis_byte,
-output wire axis_tvalid,
-output wire spi_rd,
-output wire [7:0] spi_byte_rx,
-output wire spi_td,
-output wire [7:0] spi_byte_tx,
-output wire [3:0] spi_counter
-);
-
+output wire         o_busy);
 
 wire rx_ready_spi;
 wire axis_tready;
-
-
 reg readFifo;
 reg readyToReadFifo;
 wire [7:0] fifo_rd_byte;
-reg [3:0] spi_counter_reg;
+
 
 //client 
 wire [7:0]  c_axis_tdata;
@@ -53,7 +41,6 @@ wire        s_axis_tready;
 
 initial begin
     readFifo = 1'b0;
-    spi_counter_reg = 4'h0; 
     readyToReadFifo = 1'b0;
 end
 
@@ -65,12 +52,6 @@ always @(posedge i_clk or negedge i_resetn) begin
          readyToReadFifo <= 1'b0;
     end
     else begin
-        if (rx_ready_spi & ~i_spi_cs) begin
-            spi_counter_reg <= spi_counter_reg +1'b1;
-        end
-        if (i_spi_cs) begin
-            spi_counter_reg <= 4'h0;
-        end
 
         if ( ~readyToReadFifo  & rx_ready_spi )
             readyToReadFifo <= 1'b1;
@@ -138,12 +119,4 @@ axis_wb_master #( .IMPLICIT_FRAMING(1) )
                           .busy(o_busy));
 
 
-assign axis_byte = s_axis_tdata;
-assign axis_tvalid = s_axis_tvalid;
-assign state = wb_master.state_reg;
-assign spi_rd = rx_ready_spi;
-assign spi_byte_rx = s_axis_tdata;
-assign spi_td = readFifo;
-assign spi_byte_tx = fifo_rd_byte;
-assign spi_counter = spi_counter_reg;
 endmodule

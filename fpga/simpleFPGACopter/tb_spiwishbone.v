@@ -4,7 +4,6 @@ module tb_spiwishbone();
 
 reg reset = 1'b1;
 
-
 reg clk = 1'b1;
 reg spi_clk = 1'b1;
 reg spi_ss = 1'b1;
