@@ -7,7 +7,7 @@ module pwmdecoder_wb #
 )
 (
     input wire i_clk,
-    input wire i_rst,
+    input wire i_rstn,
     /*
      * Wishbone master input
      */
@@ -25,115 +25,113 @@ module pwmdecoder_wb #
 );
 
 reg [DATA_WIDTH-1:0]   lcl_wb_dat_o;     // DAT_O() data out
-reg                    lcl_wb_ack_o, lcl_ack;     // ACK_O acknowledge output
-reg                    lcl_wb_err_o;     // ERR_O error output
-reg                    lcl_wb_rty_o;     // RTY_O retry output
+reg                    lcl_wb_ack_o;
 
-
-reg [31:0]  pwm_0;
-reg [31:0]  pwm_1;
-reg [31:0]  pwm_2;
-reg [31:0]  pwm_3;
-reg [31:0]  pwm_4;
-reg [31:0]  pwm_5;
-
+wire pwm_ready_0;
+wire [15:0] pwm_value_0;
+wire [15:0] pwm_value_1;
+wire [15:0] pwm_value_2;
+wire [15:0] pwm_value_3;
+wire [15:0] pwm_value_4;
+wire [15:0] pwm_value_5;
 
 initial begin
     lcl_wb_dat_o = 0;
     lcl_wb_ack_o = 0;
-    lcl_wb_err_o = 0;
-    lcl_wb_rty_o = 0;
-    lcl_ack = 0;
-
-    pwm_0 = 32'h11220044;
-    pwm_1 = 32'h11221144;
-    pwm_2  = 32'h2;
-    pwm_3 = 32'h13;
-    pwm_4 = 32'h5;
-    pwm_5 = 32'h6;
 end
 
-always @* begin
-        
-         lcl_wb_ack_o <= wb_stb_i;  
-         if ( wb_stb_i & wb_cyc_i)
+always @(posedge i_clk) begin
+
+    if ( wb_stb_i & wb_cyc_i)
         begin
             casez (wb_adr_i)
             5'h0: begin
-                lcl_wb_dat_o = pwm_0;
+                lcl_wb_dat_o <= { 16'h0, pwm_value_0};
             end
 
             5'h4: begin
-                lcl_wb_dat_o = pwm_1;
+                lcl_wb_dat_o <= { 16'h0, pwm_value_1};
             end
 
             5'h8: begin
-                lcl_wb_dat_o = pwm_2;
+                lcl_wb_dat_o <= { 16'h0,  pwm_value_2};
             end
 
             5'h0C: begin
-                lcl_wb_dat_o = pwm_3;
+                lcl_wb_dat_o <= { 16'h0, pwm_value_3};
             end
 
             5'h10: begin
-                lcl_wb_dat_o = pwm_4;
+                lcl_wb_dat_o <= { 16'h0, pwm_value_4};
             end   
 
             5'h14: begin
-                lcl_wb_dat_o = pwm_5;
+                lcl_wb_dat_o <= { 16'h0, pwm_value_5};
             end 
 
             default:
                 lcl_wb_dat_o = 32'hFFFFFFFF;
             endcase
-
         end
-
-
 end
-/*
-    always @(posedge i_clk)
-	    lcl_ack <= wb_stb_i;        
+   
 
-    always @(posedge i_clk)
-	    lcl_wb_ack_o <= lcl_ack;        
+pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_0  (.i_clk(i_clk),
+                        .i_pwm(i_pwm_1),
+                        .i_resetn(i_rstn),
+                        .o_pwm_ready(),
+                        .o_pwm_value(pwm_value_0));   
 
-    always @(posedge i_clk) begin
-        if ( wb_stb_i & wb_cyc_i)
-        begin
-            casez (wb_adr_i)
-            5'h0: begin
-                lcl_wb_dat_o <= pwm_0;
-            end
+pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_1 (.i_clk(i_clk),
+                        .i_pwm(i_pwm_2),
+                        .i_resetn(i_rstn),
+                        .o_pwm_ready(),
+                        .o_pwm_value(pwm_value_1));   
 
-            5'h4: begin
-                lcl_wb_dat_o <= pwm_1;
-            end
+pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_2 
+                        (.i_clk(i_clk),
+                        .i_pwm(i_pwm_2),
+                        .i_resetn(i_rstn),
+                        .o_pwm_ready(),
+                        .o_pwm_value(pwm_value_2));   
 
-            5'h8: begin
-                lcl_wb_dat_o <= pwm_2;
-            end
+pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_3 
+                        (.i_clk(i_clk),
+                        .i_pwm(i_pwm_3),
+                        .i_resetn(i_rstn),
+                        .o_pwm_ready(),
+                        .o_pwm_value(pwm_value_3));   
 
-            5'h0C: begin
-                lcl_wb_dat_o <= pwm_3;
-            end
+pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_4 
+                        (.i_clk(i_clk),
+                        .i_pwm(i_pwm_4),
+                        .i_resetn(i_rstn),
+                        .o_pwm_ready(),
+                        .o_pwm_value(pwm_value_4));   
 
-            5'h10: begin
-                lcl_wb_dat_o <= pwm_4;
-            end   
+pwmdecoder #(.clockFreq(1000000000)) pwmDecoder_5
+                        (.i_clk(i_clk),
+                        .i_pwm(i_pwm_1),
+                        .i_resetn(i_rstn),
+                        .o_pwm_ready(),
+                        .o_pwm_value(pwm_value_5));   
 
-            5'h14: begin
-                lcl_wb_dat_o <= pwm_5;
-            end 
-            endcase
+                                                                                                                                                
 
-        end
+always @(posedge i_clk) begin
+if ( wb_stb_i & wb_cyc_i & ~lcl_wb_ack_o)
+    begin
+        lcl_wb_ack_o <= 1'b1;
     end
-*/
+    else begin
+        lcl_wb_ack_o <= 1'b0;
+    end
+end
+
 
 assign wb_dat_o = lcl_wb_dat_o;
 assign wb_ack_o = lcl_wb_ack_o;
-assign wb_err_o = lcl_wb_err_o;
-assign wb_rty_o = lcl_wb_rty_o;
+assign wb_err_o = 1'b0;
+assign wb_rty_o = 1'b0;
 
 endmodule
