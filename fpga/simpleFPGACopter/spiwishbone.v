@@ -38,6 +38,7 @@ wire axis_tready;
 
 
 reg readFifo;
+reg readyToReadFifo;
 wire [7:0] fifo_rd_byte;
 reg [3:0] spi_counter_reg;
 
@@ -53,6 +54,7 @@ wire        s_axis_tready;
 initial begin
     readFifo = 1'b0;
     spi_counter_reg = 4'h0; 
+    readyToReadFifo = 1'b0;
 end
 
 assign s_axis_tvalid = rx_ready_spi & s_axis_tready;
@@ -60,6 +62,7 @@ assign s_axis_tvalid = rx_ready_spi & s_axis_tready;
 always @(posedge i_clk or negedge i_resetn) begin
     if (!i_resetn) begin
          readFifo <= 1'b0;
+         readyToReadFifo <= 1'b0;
     end
     else begin
         if (rx_ready_spi & ~i_spi_cs) begin
@@ -68,10 +71,15 @@ always @(posedge i_clk or negedge i_resetn) begin
         if (i_spi_cs) begin
             spi_counter_reg <= 4'h0;
         end
-        if ( /*~c_axis_tvalid & */rx_ready_spi & ~fifo_empty & ~readFifo ) begin
+
+        if ( ~readyToReadFifo  & rx_ready_spi )
+            readyToReadFifo <= 1'b1;
+
+        if (~fifo_empty & ~readFifo & readyToReadFifo) begin
             readFifo <= 1'b1;
+            readyToReadFifo <= 1'b0;
         end
-        else if (readFifo) begin
+        else if (readFifo ) begin
                 readFifo <= 1'b0;
         end
 
@@ -135,7 +143,7 @@ assign axis_tvalid = s_axis_tvalid;
 assign state = wb_master.state_reg;
 assign spi_rd = rx_ready_spi;
 assign spi_byte_rx = s_axis_tdata;
-assign spi_td = fifo_rd_byte;
+assign spi_td = readFifo;
 assign spi_byte_tx = fifo_rd_byte;
 assign spi_counter = spi_counter_reg;
 endmodule
