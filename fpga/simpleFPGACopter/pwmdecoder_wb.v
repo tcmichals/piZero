@@ -2,8 +2,8 @@
 `timescale 1 ns / 1 ns
 
 module pwmdecoder_wb #
-    (parameter clockFreq = 1000000000)   
-(
+    (
+    parameter clockFreq = 100_000_000,
     parameter DATA_WIDTH = 32,                    // width of data bus in bits (8, 16, 32, or 64)
     parameter ADDR_WIDTH = 32,                    // width of address bus in bits
     parameter SELECT_WIDTH = (DATA_WIDTH/8)       // width of word select bus (1, 2, 4, or 8)
@@ -14,7 +14,7 @@ module pwmdecoder_wb #
     /*
      * Wishbone master input
      */
-    input  wire [5:0]              wb_adr_i,     // ADR_I() address input
+    input  wire [ADDR_WIDTH-1:0]              wb_adr_i,     // ADR_I() address input
     input  wire [DATA_WIDTH-1:0]   wb_dat_i,     // DAT_I() data in
     output wire [DATA_WIDTH-1:0]   wb_dat_o,     // DAT_O() data out
     input  wire                    wb_we_i,      // WE_I write enable input
@@ -87,13 +87,13 @@ end
    
 
 pwmdecoder #(.clockFreq(clockFreq)) pwmDecoder_0  (.i_clk(i_clk),
-                        .i_pwm(i_pwm_1),
+                        .i_pwm(i_pwm_0),
                         .i_resetn(i_rstn),
                         .o_pwm_ready(),
                         .o_pwm_value(pwm_value_0));   
 
 pwmdecoder #(.clockFreq(clockFreq)) pwmDecoder_1 (.i_clk(i_clk),
-                        .i_pwm(i_pwm_2),
+                        .i_pwm(i_pwm_1),
                         .i_resetn(i_rstn),
                         .o_pwm_ready(),
                         .o_pwm_value(pwm_value_1));   
@@ -121,7 +121,7 @@ pwmdecoder #(.clockFreq(clockFreq)) pwmDecoder_4
 
 pwmdecoder #(.clockFreq(clockFreq)) pwmDecoder_5
                         (.i_clk(i_clk),
-                        .i_pwm(i_pwm_1),
+                        .i_pwm(i_pwm_5),
                         .i_resetn(i_rstn),
                         .o_pwm_ready(),
                         .o_pwm_value(pwm_value_5));   

@@ -18,7 +18,7 @@ wire [3:0]  wb_sel_o;   // SEL_O() select output
 wire        wb_stb_o;   // STB_O strobe output
 reg         wb_ack_i = 1'b0;   // ACK_I acknowledge input
 reg        wb_err_i = 1'b0;   // ERR_I error input
-wire       m_wb_cyc_o;   // CYC_O cycle output
+reg       m_wb_cyc_o = 1'b0;   // CYC_O cycle output
 wire o_busy;
 
 

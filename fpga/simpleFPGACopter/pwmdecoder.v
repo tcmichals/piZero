@@ -1,5 +1,5 @@
 `default_nettype none
-`timescale 1 ns / 1 ns
+
 
 module pwmdecoder #(
         parameter clockFreq = 50000000)
@@ -16,8 +16,9 @@ reg [1:0] state;
 reg [15:0] clk_counter;
 reg [1:0] pwm_sig;
 
-localparam CLK_DIVIDER = (clockFreq / 1000000) -1;
-localparam GUARD_ERROR 	= 16'h8000;
+localparam CLK_DIVIDER = (clockFreq / 1_000_000) -1;
+localparam GUARD_ERROR_LOW 	= 16'hC000;
+localparam GUARD_ERROR_HIGH 	= 16'h8000;
 
 localparam MEASURING_ON = 2'b1;
 localparam MEASURING_OFF = 2'b0;
@@ -35,11 +36,20 @@ initial begin
     pwm_on_count = 0;
     pwm_off_count = 0;
     pwm_sig = 0;
-    o_pwm_value = 0;
+    o_pwm_value = GUARD_ERROR_LOW;
 end
 
 
 assign o_pwm_ready = pwm_ready;
+
+always @(posedge i_clk or negedge i_resetn) begin
+    if (i_resetn) begin
+        if (clk_counter < CLK_DIVIDER )
+            clk_counter <= clk_counter + 1'b1;
+        else 
+             clk_counter <= 0;
+    end                                      
+end
 
 always @(posedge i_clk or negedge i_resetn) begin
 
@@ -50,7 +60,7 @@ always @(posedge i_clk or negedge i_resetn) begin
         pwm_on_count <= 0;
         pwm_off_count <= 0;
         pwm_sig <= 0;
-	    o_pwm_value <= 0;
+	    o_pwm_value <= GUARD_ERROR_LOW;
     end
     else begin
         //synchronize FF
@@ -59,16 +69,16 @@ always @(posedge i_clk or negedge i_resetn) begin
         case (state)
 
             MEASURING_OFF: begin 
-                if (pwm_sig[1] == 0) begin
-                    if (clk_counter < CLK_DIVIDER )
-                        clk_counter <= clk_counter + 1'b1;
-                    else begin
-                        clk_counter <= 0;
+                if (pwm_sig[1] == 0) 
+                begin
+                    if (clk_counter == CLK_DIVIDER ) 
+                    begin
                         if (pwm_off_count < GUARD_TIME_OFF_MAX)
                             pwm_off_count <= pwm_off_count + 1'b1;
-                        else begin
+                        else 
+                        begin
 			                /* use pwm_off_count greater then 26ms, notify pwm*/
-                            o_pwm_value <= GUARD_ERROR; 
+                            o_pwm_value <= pwm_off_count | GUARD_ERROR_LOW; 
 		                    pwm_ready <= 1;
                     	   state <= MEASURE_COMPLETE;
                         end
@@ -76,7 +86,6 @@ always @(posedge i_clk or negedge i_resetn) begin
                 end
                 else begin
                     pwm_on_count <= 0;
-		            pwm_off_count <= 0;
                     pwm_ready <= 0;
                     state <= MEASURING_ON;
                     clk_counter <= 0;
@@ -85,23 +94,19 @@ always @(posedge i_clk or negedge i_resetn) begin
 
             MEASURING_ON: begin /* measure on */
                 if (pwm_sig[1]) begin
-                    if (clk_counter < CLK_DIVIDER )
-                        clk_counter <= clk_counter + 1'b1;
-                    else begin
-                        clk_counter <= 0;
+                    if (clk_counter == CLK_DIVIDER )
+                    begin
                         if (pwm_on_count < GUARD_TIME_ON_MAX)                           
                             pwm_on_count <= pwm_on_count + 1'b1;
                         else begin
 						    state <= MEASURE_COMPLETE;
-							o_pwm_value <= pwm_on_count | GUARD_ERROR;
+							o_pwm_value <= pwm_on_count  | GUARD_ERROR_HIGH;
 							pwm_ready <= 1;
 						end
                     end
                 end
-                else begin
-                    if ( pwm_on_count < GUARD_TIME_ON_MIN)
-                        pwm_on_count <= pwm_on_count | GUARD_ERROR;
-
+                else 
+                begin
                     pwm_ready <= 1;
                     state <= MEASURE_COMPLETE;
 		            o_pwm_value <= pwm_on_count;
