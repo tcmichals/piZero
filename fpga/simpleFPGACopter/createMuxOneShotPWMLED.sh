@@ -1,0 +1,1 @@
+python ./verilog-wishbone/rtl/wb_mux.py --ports 3 --name threeport_mux --output threeport_mux.v
