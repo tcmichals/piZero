@@ -1,3 +1,6 @@
 # printf '\x01\x82\xF3' | spi-pipe -d /dev/spidev0.0 | hexdump -C
 
 https://forum.digikey.com/t/fifo-buffer-module-with-watermarks-verilog-and-vhdl/13182
+
+GitHub - airhdl/spi-to-axi-bridge: An SPI to AXI4-lite bridge for easy interfacing of airhdl register banks with any microcontroller.
+
