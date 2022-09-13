@@ -56,15 +56,18 @@ always @(posedge i_clk) begin
         begin
             casez (wb_adr_i)
             5'h0: begin
-                lcl_wb_dat_o <= { 16'h0, pwm_value_0};
+               # lcl_wb_dat_o <= { 16'h0, pwm_value_0};
+               lcl_wb_dat_o <= { 16'h0, 16'h0011};
             end
 
             5'h4: begin
-                lcl_wb_dat_o <= { 16'h0, pwm_value_1};
+                #lcl_wb_dat_o <= { 16'h0, pwm_value_1};
+                lcl_wb_dat_o <= { 16'h0, 16'h0022};
             end
 
             5'h8: begin
-                lcl_wb_dat_o <= { 16'h0,  pwm_value_2};
+                #lcl_wb_dat_o <= { 16'h0,  pwm_value_2};
+                  lcl_wb_dat_o <= { 16'h0, 16'h0022};
             end
 
             5'h0C: begin

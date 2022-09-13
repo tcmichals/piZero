@@ -23,7 +23,7 @@ def writeLED(led_0_3, led_r=0, led_b=0, led_g=0 ):
     # led_val = addLed(RED_LED_OFFSET, led_r)
     # led_val = addLed(RED_LED_OFFSET, led_r)
     
-    msg = [0xA2, 1, 2,3,0,0,4, led_val, 0,0,0,0,0,0 ]
+    msg = [0xA2, 0, 0,0,0,0,4, led_val, 0,0,0,0,0,0 ]
     reply = spi.xfer2(msg)
 
 def toggleLED(led_0_3, led_r=0, led_b=0, led_g=0 ):
@@ -32,8 +32,7 @@ def toggleLED(led_0_3, led_r=0, led_b=0, led_g=0 ):
     # led_val = addLed(BLUE_LED_OFFSET, led_b)
     # led_val = addLed(RED_LED_OFFSET, led_r)
     # led_val = addLed(RED_LED_OFFSET, led_r)
-    
-    msg = [0xA2, 1, 2,3,4,0,4, led_val, 0,0,0,0,0,0 ]
+    msg = [0xA2,0, 0,0,4,0,4, led_val, 0,0,0,0,0,0 ]
     reply = spi.xfer2(msg)
 
 def loop(count = 1000):
@@ -53,13 +52,14 @@ def loop(count = 1000):
 def toggle(count = 1000):
 
     try:    
+        writeLED(0xF0)
         loopcnt = range(count)
         for x in loopcnt:
             # Report the channel 0 and channel 1 voltages to the terminal
             max_count = range( 2 ** 4 -1)
             for n in max_count:
                 toggleLED(0x5);
-                #time.sleep(0.2)
+                time.sleep(.5)
     finally:
         spi.close()
             

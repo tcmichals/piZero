@@ -18,7 +18,7 @@ reg [1:0] pwm_sig;
 
 localparam CLK_DIVIDER = (clockFreq / 1_000_000) -1;
 localparam GUARD_ERROR_LOW 	= 16'hC000;
-localparam GUARD_ERROR_HIGH 	= 16'h8000;
+localparam GUARD_ERROR_HIGH = 16'h8000;
 
 localparam MEASURING_ON = 2'b1;
 localparam MEASURING_OFF = 2'b0;
@@ -42,13 +42,14 @@ end
 
 assign o_pwm_ready = pwm_ready;
 
-always @(posedge i_clk or negedge i_resetn) begin
-    if (i_resetn) begin
+always @(posedge i_clk) begin
+    if (i_resetn == 1) begin
         if (clk_counter < CLK_DIVIDER )
             clk_counter <= clk_counter + 1'b1;
         else 
              clk_counter <= 0;
-    end                                      
+    end 
+                              
 end
 
 always @(posedge i_clk or negedge i_resetn) begin
