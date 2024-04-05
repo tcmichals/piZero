@@ -1,0 +1,3 @@
+[submodule "fpga/AXIFPGACopter/spi-to-axi-bridge"]
+	path = fpga/AXIFPGACopter/spi-to-axi-bridge
+	url = https://github.com/airhdl/spi-to-axi-bridge.git
